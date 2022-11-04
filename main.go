@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
-	"math"
 	"math/big"
 	"strconv"
 )
@@ -33,9 +32,7 @@ func decrypt(c []string, d, n *big.Int) ([]int64, []string) {
 	return result, textResult
 }
 
-func generateKeyPair() (e, d, n *big.Int) {
-	p, _ := rand.Prime(rand.Reader, 13)
-	q, _ := rand.Prime(rand.Reader, 13)
+func generateKeyPair(p, q *big.Int) (e, d, n *big.Int) {
 	n = new(big.Int).Mul(p, q)
 	fn := new(big.Int).Mul(new(big.Int).Sub(p, big.NewInt(1)), new(big.Int).Sub(q, big.NewInt(1)))
 
@@ -60,11 +57,12 @@ func generateKeyPair() (e, d, n *big.Int) {
 }
 
 func main() {
-	e, d, n := generateKeyPair()
+	/*p, _ := rand.Prime(rand.Reader, 10)
+	q, _ := rand.Prime(rand.Reader, 10)*/
+	p := big.NewInt(97)
+	q := big.NewInt(103)
+	e, d, n := generateKeyPair(p, q)
 	fmt.Println(e, d, n)
-
-	ed := new(big.Int).Mul(e, d)
-	fmt.Println(ed)
 
 	message := "BAUM"
 
@@ -80,19 +78,6 @@ func main() {
 	decryptedNum, decrypted := decrypt(encrypted, d, n)
 	fmt.Println(decryptedNum)
 	fmt.Println(decrypted)
-}
-
-func isPrime(num int64) bool {
-	sqRoot := int(math.Sqrt(float64(num)))
-
-	for i := 2; i <= sqRoot; i++ {
-		if num%int64(i) == 0 {
-			fmt.Println(i)
-			return false
-		}
-	}
-
-	return true
 }
 
 func GCD(a, b int64) int64 {
