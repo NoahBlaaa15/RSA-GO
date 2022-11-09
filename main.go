@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -56,7 +58,35 @@ func generateKeyPair(p, q *big.Int) (e, d, n *big.Int) {
 	return e, d, n
 }
 
-func main() {
+func webservice() {
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		query := request.URL.Query()
+		if !query.Has("type") {
+			fmt.Fprintln(writer, "specify type: enc, dec, gen")
+			return
+		}
+
+		typ := query.Get("type")
+		switch typ {
+		case "enc":
+			break
+		case "dec":
+			break
+		case "gen":
+			break
+		}
+	})
+
+	http.HandleFunc("/exit", func(writer http.ResponseWriter, request *http.Request) {
+		os.Exit(0)
+	})
+
+	fmt.Println("starting server at port 80")
+	err := http.ListenAndServe(":80", nil)
+	fmt.Println(err)
+}
+
+func commandline() {
 	/*p, _ := rand.Prime(rand.Reader, 10)
 	q, _ := rand.Prime(rand.Reader, 10)*/
 	p := big.NewInt(97)
@@ -78,6 +108,23 @@ func main() {
 	decryptedNum, decrypted := decrypt(encrypted, d, n)
 	fmt.Println(decryptedNum)
 	fmt.Println(decrypted)
+}
+
+func main() {
+	args := os.Args[1:]
+	if len(args) < 1 {
+		fmt.Println("specify running mode as program args: api, cmd")
+		os.Exit(1)
+	}
+
+	switch os.Args[1] {
+	case "api":
+		webservice()
+		break
+	case "cmd":
+		commandline()
+		break
+	}
 }
 
 func GCD(a, b int64) int64 {
